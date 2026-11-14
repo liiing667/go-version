@@ -60,9 +60,10 @@ type Constraints struct {
 // Constraints is one or more constraint that a semantic version can be
 // checked against.
 type constraint struct {
-	version  Version
-	operator operatorFunc
-	original string
+	version      Version
+	operatorName string
+	operator     operatorFunc
+	original     string
 }
 
 // NewConstraints parses a given constraint and returns a new instance of Constraints
@@ -113,7 +114,8 @@ func newConstraint(c string, conf conf) (constraint, error) {
 				patch:      part.Any(true),
 				preRelease: part.NewParts("*"),
 			},
-			operator: constraintOperators[""],
+			operatorName: "",
+			operator:     constraintOperators[""],
 		}, nil
 	}
 
@@ -140,9 +142,10 @@ func newConstraint(c string, conf conf) (constraint, error) {
 	v.preRelease = preRelease
 
 	return constraint{
-		version:  v,
-		operator: constraintOperators[m[1]],
-		original: c,
+		version:      v,
+		operatorName: m[1],
+		operator:     constraintOperators[m[1]],
+		original:     c,
 	}, nil
 }
 

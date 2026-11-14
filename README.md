@@ -84,6 +84,24 @@ if c.Check(v) {
 }
 ```
 
+### SemVer Constraint Overlap
+To decide whether two constraints can match any common version without
+enumerating concrete versions, use `Overlaps`. It understands AND (`,`) and
+OR (`||`) combinations, open and closed boundaries, wildcards (`x`, `X`,
+`*`), pre-release scoping, and the `WithZeroPadding` / `WithPreRelease`
+options carried by each `Constraints`.
+
+```
+c1, _ := semver.NewConstraints(">= 1.0.0, < 2.0.0")
+c2, _ := semver.NewConstraints("> 1.5.0 || >= 3.0.0")
+
+c1.Overlaps(c2) // true: versions such as 1.6.0 satisfy both constraints
+```
+
+`Overlaps` is symmetric: when it reports `true`, at least one semantic
+version satisfies both constraints; when it reports `false` their satisfying
+sets are disjoint.
+
 Supported operators
 - `=` : you accept that exact version
 - `!=` : not equal
@@ -228,6 +246,23 @@ if c.Check(v) {
 	fmt.Printf("%s satisfies constraints '%s'", v, c)
 }
 ```
+
+### Version Constraint Overlap
+`Overlaps` reports whether two constraints share at least one satisfying
+version. It handles AND (`,`) and OR (`||`) combinations, open/closed
+boundaries, the `~>` / `~` / `^` ranges, pre-release versions, zero padding,
+and the optional build metadata ordering of each `Constraints`.
+
+```
+c1, _ := version.NewConstraints(">= 1.0, < 1.4 || > 2.1")
+c2, _ := version.NewConstraints("~> 1.2")
+
+c1.Overlaps(c2) // true: the ~> 1.2 range lies inside >= 1.0, < 1.4
+```
+
+When one side uses `WithBuildMetadataOrder`, build metadata variants are
+probed with the same ordering rules as `Check`; otherwise build metadata is
+ignored exactly as in version comparison.
 
 Supported operators:
 - `=` : you accept that exact version
